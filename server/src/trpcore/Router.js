@@ -1,4 +1,4 @@
-class Router {
+export class Router {
     constructor(mb) {
         this.mb = mb;
 

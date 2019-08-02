@@ -1,4 +1,4 @@
-class Entries {
+export class Entries {
     constructor(db, mb) {
         this.db = db;
         this.mb = mb;
@@ -10,9 +10,14 @@ class Entries {
             this.get_entries_for_topic(firstTopic);
         });
 
-        this.mb.listen("/entries/loaded", (topic, entries) => {
-            this.render(topic, entries);
+        this.mb.listen("/entries/loaded", ({topic, entries}) => {
+            this.render({topic, entries});
         });
+
+        this.mb.listen("/topics/topic_changed", (topic_title)=> {
+            this.render({topic: topic_title, entries:[]});
+            this.get_entries_for_topic(topic_title);
+        })
 
         // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         // !!!! LISTEN REALTIME CHANGES IN ENTRIES !!!!
@@ -49,13 +54,18 @@ class Entries {
     render({topic, entries}) {
         const template = `<div id="entries">
                              <h1><%= topic %></h1>
-                             <ul>
                              <% entries.forEach(function(entry){ %>
-                                 <li><%= entry.data %></a></li>
+                                <div class="entry">
+                                    <%= entry.data %>
+                                    <div class="entry_info">
+                                        <a href="#"><%= entry.user%></a>
+                                        <span><%= entry.entry_date %></span>
+                                        <span>❤️ 12</span>
+                                    </div>
+                                </div>
                              <% }); %>
-                             </ul>
                           </div>`;
         const html = ejs.render(template, {entries: entries, 'topic': topic});
-        document.getElementById("entries_panel").innerHTML = html
+        document.getElementById("entries_content").innerHTML = html
     }
 }

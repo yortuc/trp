@@ -1,5 +1,4 @@
-
-class Topics {
+export class Topics {
     constructor(db, mb) {
         this.db = db;
         this.mb = mb;
@@ -8,7 +7,18 @@ class Topics {
         this.mb.listen('/topics/loaded', (topics)=> {
             this.render(topics);
             this.currentTopic = topics[0];
-        })
+        });
+
+        this.mb.listen("/link/clicked", (link)=> {
+            if(link.startsWith("/t/")){
+                this.select_topic(link.substring(3));
+            }
+        });
+    }
+
+    select_topic(topic_title) {
+        this.currentTopic = topic_title;
+        this.mb.say("/topics/topic_changed", topic_title);
     }
 
     get_topics() {
@@ -34,7 +44,7 @@ class Topics {
                              <h1>konular</h1>
                              <ul>
                              <% topics.forEach(function(topic){ %>
-                                 <li><a href="/<%= topic.title %>/"><%= topic.title %></a></li>
+                                 <li><a href="/t/<%= topic.title %>"><%= topic.title %></a></li>
                              <% }); %>
                              </ul>
                           </div>`;

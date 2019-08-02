@@ -5,102 +5,82 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>trp :: ana sayfa</title>
 
-    <script src="https://github.com/mde/ejs/releases/download/v2.6.2/ejs.min.js"></script>
-
-    <!-- update the version number as needed -->
-    <script src="/__/firebase/6.3.3/firebase-app.js"></script>
-    <!-- include only the Firebase features as you need -->
-    <script src="/__/firebase/6.3.3/firebase-auth.js"></script>
-    <script src="/__/firebase/6.3.3/firebase-database.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/6.3.3/firebase-firestore.js"></script>
-    <script src="/__/firebase/6.3.3/firebase-messaging.js"></script>
-    <script src="/__/firebase/6.3.3/firebase-storage.js"></script>
-
-    <!-- initialize the SDK after all desired features are loaded -->
-    <script src="/__/firebase/init.js"></script>
-    <link type="text/css" rel="stylesheet" href="stylesheets/style.css" />
-
-    <!-- firebase UI -->
-    <script src="https://cdn.firebase.com/libs/firebaseui/3.5.2/firebaseui.js"></script>
-    <link type="text/css" rel="stylesheet" href="https://cdn.firebase.com/libs/firebaseui/3.5.2/firebaseui.css" />
-
-    <!-- CUSTOM SCRIPTS -->
-    <script src="/javascripts/Router.js"></script>
-    <script src="/javascripts/User.js"></script>
-    <script src="/javascripts/MessageBus.js"></script>
-    <script src="/javascripts/Entries.js"></script>
-    <script src="/javascripts/Topics.js"></script>
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+ 
+     <!-- MATERIAL_UI -->
+     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script> 
+     
   </head>
   <body>
+  
+    <div id="root"></div>
 
-    <div id="user">
-      <div id="user_login">
-        <a href="/kullanici/giris">GIRIS YAP</a>
-      </div>
-      <div id="user_logged" class="hidden">
-          <a href="/kullanici/cikis">CIKIS</a> <br/>
-        <a href="/kullanici/yeni_entry">Yeni Entry</a>
-      </div>
+    <div id="header">
+        <div id="user">
+            <div id="user_login">
+              <a href="/kullanici/giris">GIRIS YAP</a>
+            </div>
+            <div id="user_logged" class="hidden">
+                <a href="/kullanici/cikis">CIKIS</a> <br/>
+                <a href="/kullanici/yeni_topic_olustur">Yeni Topic</a>
+            </div>
+          </div>      
     </div>
 
-     <!-- The surrounding HTML is left untouched by FirebaseUI.
-          Your app may use that space for branding, controls and other customizations.-->
-     <div id="firebaseui-auth-container" class="message hidden"></div>
-     <div id="loader" class="hidden">Loading...</div>
+    <div id="firebaseui-auth-container" class="message hidden"></div>
 
     <div id="topics_panel"></div>
-    <div id="entries_panel"></div>
-
-    <div id="new_entry_dialog" class="full_screen bg_beyaz hidden">
-      <h1>Yeni Entry<h1>
-      <textarea id="txt_new_entry" cols="100" rows="10">entry buraya ...</textarea>
-      <hr />
-      <a href="/kullanici/yeni_entry_ekle" clas="big_button">Ekle</a>
+    <div id="entries_panel">
+      <div id="entries_content"></div>
+      <hr/>
+        <div id="new_entry_dialog">
+            <h2>Yeni Entry</h2>
+            <textarea id="txt_new_entry" cols="100" rows="5">entry buraya ...</textarea>
+            </br>
+            <a href="/kullanici/yeni_entry_ekle" class="big_button">Ekle</a>
+          </br>
+          </br>
+          </br>
+          </div>
     </div>
 
-    <div class="message">
-        <h2>TRP</h2>
-        <h1>Reloaded again now!</h1>
-        <p>o an, birilerine, o halis beyoğlu hanımefendilerinin, beyefendilerinin arz-ı endam ettiği zamanlar için "ahh" çektirdi belki de bu kare. neredeydi değil mi o eski beyoğlu?
-
-            ve şu an, bizlere, 8 ocak 2002 için "ahh" çektirdi bu kare. e haklıyız abi. haklıyız çünkü biz istiklal caddesi'ni böyle gördük. asfalt döktükleri yetmedi, kan döktüler! 
-            
-            bence şu anda da şiir gibi. şiir dediysem, öyle turgut uyar dizeleri gibi değil. karanlık, korkunç, siyah bir edgar allan poe dizesi bu abi!
-            
-            sahi, neredeydi o eski beyoğlu?</p>
-        <a target="_blank" href="https://firebase.google.com/docs/hosting/">Open Hosting Documentation</a>
+  <!-- Modal Structure -->
+  <div id="dlg_new_topic" class="modal">
+      <div class="modal-content">
+        <h4>Yeni Topic</h4>
+        <input placeholder="Baslik buraya" id="txt_title_new_topic" type="text" class="validate">
+        <textarea id="txt_entry_new_topic" class="materialize-textarea"></textarea>
+      </div>
+      <div class="modal-footer">
+        <a href="/kullanici/yeni_topic_ekle" class="waves-effect waves-green btn-flat">Ekle</a>
+      </div>
     </div>
-
-    <div class="message">
-      <h2>Welcome</h2>
-      <h1>Firebase Hosting Setup Complete</h1>
-      <p>You're seeing this because you've successfully setup Firebase Hosting. Now it's time to go build something extraordinary!</p>
-      <a target="_blank" href="https://firebase.google.com/docs/hosting/">Open Hosting Documentation</a>
-    </div>
-    <p id="load">Firebase SDK Loading&hellip;</p>
-
+    
     <script>
       document.addEventListener('DOMContentLoaded', function() {
         
-        try {
-          let app = firebase.app();
-          let features = ['auth', 'database', 'firestore', 'messaging', 'storage'].filter(feature => typeof app[feature] === 'function');
-          document.getElementById('load').innerHTML = `Firebase SDK loaded with ${features.join(', ')}`;
-        } catch (e) {
-          console.error(e);
-          document.getElementById('load').innerHTML = 'Error loading the Firebase SDK, check the console.';
-        }
+        // try {
+        //   let app = firebase.app();
+        //   let features = ['auth', 'database', 'firestore', 'messaging', 'storage'].filter(feature => typeof app[feature] === 'function');
+        //   console.log(`Firebase SDK loaded with ${features.join(', ')}`);
+        // } catch (e) {
+        //   console.error(e);
+        //   console.log('Error loading the Firebase SDK, check the console.');
+        // }
 
-        const mb = new MessageBus();
-        var db = firebase.firestore();
+        // const mb = new MessageBus();
+        // var db = firebase.firestore();
 
-        topics = new Topics(db, mb);
-        topics.get_topics();
+        // topics = new Topics(db, mb);
+        // topics.get_topics();
 
-        entries = new Entries(db, mb);
-        router = new Router(mb);
-        user_tools = new User(db, mb);
+        // entries = new Entries(db, mb);
+        // router = new Router(mb);
+        // user_tools = new User(db, mb);
+        // ui = new UI();
       }); 
     </script>
+
   </body>
 </html>

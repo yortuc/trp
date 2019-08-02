@@ -1,4 +1,4 @@
-class MessageBus {
+export class MessageBus {
     constructor() {
         this.channels = {}
     }
