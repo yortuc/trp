@@ -5,8 +5,10 @@
   "dependencies": {
     "firebase": "^6.3.4",
     "firebaseui": "^4.1.0",
+    "materialize-css": "^1.0.0",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
+    "react-materialize": "^3.3.4",
     "react-scripts": "3.0.1"
   },
   "scripts": {

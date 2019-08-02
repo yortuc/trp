@@ -11,6 +11,12 @@ import * as firebase from "firebase/app";
 import "firebase/auth";
 import "firebase/firestore";
 
+import DBHelper from './trpcore/db_helper';
+
+const renderApp = (topics, entries)=> 
+    ReactDOM.render(<App topics={ topics } entries = { entries } currentTopic={ topics[0].title } />,
+        document.getElementById('root'));
+
 const firebaseConfig = {
     apiKey: "AIzaSyCVgW5rXXbR3gMxX4e6b0Gow2KK4M1ug7Y",
     authDomain: "ratepi-11ba3.firebaseapp.com",
@@ -24,6 +30,11 @@ const firebaseConfig = {
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 
+const db_helper = new DBHelper(firebase);
+
+const listenEntries = (topics) => db_helper.listenCollectionWith("entries", ["topic", "==", topics[0].title], (entries)=> renderApp(topics, entries))
+db_helper.listenCollection("topics", listenEntries);
+
 try {
     let app = firebase.app();
     let features = ['auth', 'database', 'firestore', 'messaging', 'storage'].filter(feature => typeof app[feature] === 'function');
@@ -32,8 +43,6 @@ try {
     console.error(e);
     console.log('Error loading the Firebase SDK, check the console.');
 }
-
-ReactDOM.render(<App topics={[{title: "deneme1"}]} />, document.getElementById('root'));
 
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.
