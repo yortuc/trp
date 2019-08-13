@@ -1,4 +1,4 @@
-export class MessageBus {
+class MessageBus {
     constructor() {
         this.channels = {}
     }
@@ -17,5 +17,10 @@ export class MessageBus {
             this.channels[channel] = []
         }
         this.channels[channel].forEach(cb => cb(payload))
+        console.log(channel, payload)
     }
 }
+
+const mb = new MessageBus()
+
+export default mb

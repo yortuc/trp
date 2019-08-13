@@ -13,10 +13,13 @@ import "firebase/firestore";
 
 import DBHelper from './trpcore/db_helper';
 import DataStore from './trpcore/DataStore';
+import mb from './trpcore/MessageBus';
 
-const renderApp = ()=> 
-    ReactDOM.render(<App topics={ dataStore.state.topics } entries = { dataStore.state.entries } currentTopic={ dataStore.state.currentTopic } />,
+const renderApp = (state)=> {
+    console.log('renderapp', state)
+    ReactDOM.render(<App topics={ state.topics } entries = { state.entries } currentTopic={ state.currentTopic } />,
         document.getElementById('root'));
+    }
 
 const firebaseConfig = {
     apiKey: "AIzaSyCVgW5rXXbR3gMxX4e6b0Gow2KK4M1ug7Y",
@@ -47,21 +50,21 @@ const dataStore = new DataStore({
                 return {...state, entries: payload}
         }
     }
-])
+], renderApp)
+
 const db_helper = new DBHelper(firebase);
 
-let topicChangedListener = null
+let unsubscribeTopicChangedListener = null
 const currentTopicChanged = (topic) => {
     dataStore.reduce("/topics/currentTopicChanged",topic)
 
-    if(topicChangedListener){
-        topicChangedListener.unregister()
+    if(unsubscribeTopicChangedListener){
+        unsubscribeTopicChangedListener()
     }
 
-    topicChangedListener = db_helper.listenCollectionWith("entries", ["topic", "==", topic], 
+    unsubscribeTopicChangedListener = db_helper.listenCollectionWith("entries", ["topic", "==", topic], 
         (entries)=> {
             dataStore.reduce("/entries/changed", entries)
-            renderApp()
         }
     )
 }
@@ -75,6 +78,12 @@ const topicsChanged = (topics) => {
 
 db_helper.listenCollection("topics", topicsChanged);
 
+// subscribe to topic clicks for topic change
+mb.listen("/topics/topicClicked", currentTopicChanged)
+
+// render initial with empty state
+renderApp(dataStore.state);
+
 try {
     let app = firebase.app();
     let features = ['auth', 'database', 'firestore', 'messaging', 'storage'].filter(feature => typeof app[feature] === 'function');
@@ -84,7 +93,6 @@ try {
     console.log('Error loading the Firebase SDK, check the console.');
 }
 
-renderApp();
 
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.

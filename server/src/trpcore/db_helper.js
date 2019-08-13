@@ -5,19 +5,19 @@ class DBHelper {
     }
 
     listenCollection(collection, cb) {
-        this.db.collection(collection)
-            .onSnapshot(function(querySnapshot) {
-                var items = [];
-                querySnapshot.forEach(function(doc) {
-                    items.push(doc.data());
-                });
-                console.log("Current " + collection, items);
-                cb(items);
-            });
+        return this.db.collection(collection)
+                    .onSnapshot(function(querySnapshot) {
+                        var items = [];
+                        querySnapshot.forEach(function(doc) {
+                            items.push(doc.data());
+                        });
+                        console.log("Current " + collection, items);
+                        cb(items);
+                    });
     }
 
     listenCollectionWith(collection, where, cb) {
-        this.db.collection(collection).where(...where)
+        return this.db.collection(collection).where(...where)
             .onSnapshot(function(querySnapshot) {
                 var items = [];
                 querySnapshot.forEach(function(doc) {
